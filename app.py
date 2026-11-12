@@ -29,24 +29,73 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* Dark theme overrides */
-    .stApp { background-color: #0a0e1a; }
-    
-    /* Global text brightness fix */
-    .stApp, .stApp p, .stApp span, .stApp div, .stMarkdown {
-        color: #e2e8f0 !important;
+    /* ── Light theme (default) ── */
+    .stApp p, .stApp span, .stApp div, .stMarkdown, .stApp li {
+        color: #1e293b !important;
     }
     .stApp h1, .stApp h2, .stApp h3, .stApp h4 {
-        color: #f1f5f9 !important;
+        color: #0f172a !important;
     }
     .stApp strong, .stApp b {
-        color: #ffffff !important;
+        color: #0f172a !important;
+    }
+
+    /* Sidebar text */
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] span,
+    [data-testid="stSidebar"] div,
+    [data-testid="stSidebar"] label {
+        color: #1e293b !important;
+    }
+
+    /* Info box text (welcome screen) */
+    [data-testid="stAlert"] p,
+    [data-testid="stAlert"] li,
+    [data-testid="stAlert"] strong {
+        color: #1e3a5f !important;
+    }
+    [data-testid="stAlert"] strong {
+        font-weight: 700 !important;
+    }
+
+    /* File uploader label */
+    [data-testid="stFileUploader"] label {
+        color: #1e293b !important;
+        font-weight: 600 !important;
+    }
+
+    /* ── Dark theme overrides ── */
+    @media (prefers-color-scheme: dark) {
+        .stApp { background-color: #0a0e1a; }
+        .stApp p, .stApp span, .stApp div, .stMarkdown, .stApp li {
+            color: #e2e8f0 !important;
+        }
+        .stApp h1, .stApp h2, .stApp h3, .stApp h4 {
+            color: #f1f5f9 !important;
+        }
+        .stApp strong, .stApp b {
+            color: #ffffff !important;
+        }
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] span,
+        [data-testid="stSidebar"] div,
+        [data-testid="stSidebar"] label {
+            color: #e2e8f0 !important;
+        }
+        [data-testid="stAlert"] p,
+        [data-testid="stAlert"] li,
+        [data-testid="stAlert"] strong {
+            color: #e2e8f0 !important;
+        }
+        [data-testid="stFileUploader"] label {
+            color: #e2e8f0 !important;
+        }
     }
     
     /* Metric cards */
     .metric-card {
-        background: linear-gradient(135deg, #111827, #1e293b);
-        border: 1px solid #1e293b;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        border: 1px solid #cbd5e1;
         border-radius: 12px;
         padding: 20px;
         text-align: center;
@@ -54,13 +103,22 @@ st.markdown("""
     .metric-value {
         font-size: 32px;
         font-weight: 800;
+        color: #0f172a !important;
         margin: 4px 0;
     }
     .metric-label {
         font-size: 12px;
-        color: #cbd5e1 !important;
+        color: #475569 !important;
         text-transform: uppercase;
         letter-spacing: 1px;
+    }
+    @media (prefers-color-scheme: dark) {
+        .metric-card {
+            background: linear-gradient(135deg, #111827, #1e293b);
+            border: 1px solid #1e293b;
+        }
+        .metric-value { color: #f1f5f9 !important; }
+        .metric-label { color: #cbd5e1 !important; }
     }
     
     /* Drug badges */
