@@ -18,7 +18,7 @@ from datetime import datetime
 # PAGE CONFIG
 # ─────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="PDX Lineage Tracker",
+    page_title="PDX Lineage Tracker v6",
     page_icon="🧬",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -31,6 +31,17 @@ st.markdown("""
 <style>
     /* Dark theme overrides */
     .stApp { background-color: #0a0e1a; }
+    
+    /* Global text brightness fix */
+    .stApp, .stApp p, .stApp span, .stApp div, .stMarkdown {
+        color: #e2e8f0 !important;
+    }
+    .stApp h1, .stApp h2, .stApp h3, .stApp h4 {
+        color: #f1f5f9 !important;
+    }
+    .stApp strong, .stApp b {
+        color: #ffffff !important;
+    }
     
     /* Metric cards */
     .metric-card {
@@ -47,7 +58,7 @@ st.markdown("""
     }
     .metric-label {
         font-size: 12px;
-        color: #94a3b8;
+        color: #cbd5e1 !important;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
@@ -121,7 +132,7 @@ st.markdown("""
     .section-header {
         font-size: 16px;
         font-weight: 700;
-        color: #94a3b8;
+        color: #e2e8f0;
         margin: 20px 0 12px 0;
         padding-bottom: 8px;
         border-bottom: 1px solid #1e293b;
@@ -135,13 +146,13 @@ st.markdown("""
     }
     .info-item label {
         font-size: 10px;
-        color: #64748b;
+        color: #94a3b8;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     .info-item value {
         font-size: 13px;
-        color: #e2e8f0;
+        color: #f1f5f9;
     }
     
     /* Hide streamlit branding */
@@ -159,7 +170,7 @@ st.markdown("""
         background-color: #1e293b;
         border-radius: 8px;
         padding: 8px 16px;
-        color: #94a3b8;
+        color: #cbd5e1;
     }
     .stTabs [aria-selected="true"] {
         background-color: #38bdf8 !important;
@@ -592,17 +603,16 @@ def build_tree_graph(df, mouse_id, active_mice):
                 showlegend=False,
             ))
 
-            # Arrowhead at the child end
-            arrow_size = 0.06 * ROW_HEIGHT
+            # Arrowhead at the child end — small and clean
             fig.add_annotation(
                 x=cx, y=cy,
-                ax=cx, ay=cy + arrow_size * 3,
+                ax=cx, ay=cy + ROW_HEIGHT * 0.12,
                 xref="x", yref="y",
                 axref="x", ayref="y",
                 showarrow=True,
-                arrowhead=2,
-                arrowsize=1.5,
-                arrowwidth=2 if on_lineage else 1.2,
+                arrowhead=3,
+                arrowsize=0.8,
+                arrowwidth=1.5 if on_lineage else 1,
                 arrowcolor="#38bdf8" if on_lineage else "#475569",
             )
 
@@ -631,7 +641,7 @@ def build_tree_graph(df, mouse_id, active_mice):
             x=min_x, y=-d * ROW_HEIGHT,
             text=f"<b>{depth_label}</b>",
             showarrow=False,
-            font=dict(size=10, color="#64748b"),
+            font=dict(size=11, color="#cbd5e1"),
             xanchor="right",
         )
 
@@ -705,34 +715,44 @@ def build_tree_graph(df, mouse_id, active_mice):
 
         fig.add_trace(go.Scatter(
             x=[nx_coord], y=[ny_coord],
-            mode="markers+text",
+            mode="markers",
             marker=dict(
                 size=size,
                 color=color,
                 line=dict(width=3 if is_selected else 2, color=border_color),
                 symbol="diamond" if is_origin else "circle",
             ),
-            text=short,
-            textposition="bottom center" if ny_coord == max(p[1] for p in pos.values()) else "top center",
-            textfont=dict(
-                size=10 if is_selected else 9,
-                color="#f1f5f9" if is_selected or is_on_lineage else "#94a3b8",
-                family="monospace",
-            ),
             hovertext=hover,
             hoverinfo="text",
             showlegend=False,
         ))
 
+        # Node name label — placed to the right to avoid overlap
+        fig.add_annotation(
+            x=nx_coord,
+            y=ny_coord + ROW_HEIGHT * 0.18,
+            text=f"<b>{short}</b>",
+            showarrow=False,
+            font=dict(
+                size=11 if is_selected else 10,
+                color="#ffffff" if is_selected else ("#e2e8f0" if is_on_lineage else "#cbd5e1"),
+                family="monospace",
+            ),
+            yanchor="bottom",
+        )
+
         # Drug label below node (for drugged nodes)
         if drug_info and regimen:
             fig.add_annotation(
                 x=nx_coord,
-                y=ny_coord - ROW_HEIGHT * 0.15,
+                y=ny_coord - ROW_HEIGHT * 0.2,
                 text=f"<b>{drug_info['label']}</b>",
                 showarrow=False,
-                font=dict(size=8, color=drug_info["bg"]),
+                font=dict(size=9, color="#e2e8f0"),
                 yanchor="top",
+                bgcolor=drug_info["bg"],
+                borderpad=2,
+                opacity=0.9,
             )
 
     # ── Legend ──
@@ -751,7 +771,7 @@ def build_tree_graph(df, mouse_id, active_mice):
             y=max_y - i * ROW_HEIGHT * 0.35,
             text=f'<span style="color:{color}">●</span> {label}',
             showarrow=False,
-            font=dict(size=9, color="#94a3b8"),
+            font=dict(size=9, color="#e2e8f0"),
             xanchor="left",
         )
 
@@ -994,7 +1014,7 @@ with tab_lineage:
                 
                 path_parts.append(
                     f'<span class="{css_class}">'
-                    f'<div style="font-size:10px;color:#64748b">P{int(row["Psg"]) if pd.notna(row.get("Psg")) else "?"}</div>'
+                    f'<div style="font-size:10px;color:#cbd5e1">P{int(row["Psg"]) if pd.notna(row.get("Psg")) else "?"}</div>'
                     f'<div style="font-weight:700;color:#f1f5f9">{short}</div>'
                     f'{extra}'
                     f'</span>'
@@ -1043,7 +1063,7 @@ with tab_lineage:
             )
     else:
         st.markdown(
-            '<div style="text-align:center;padding:60px;color:#64748b">'
+            '<div style="text-align:center;padding:60px;color:#cbd5e1">'
             '<div style="font-size:48px;margin-bottom:12px">🌳</div>'
             '<div>Select a mouse above to view its lineage</div>'
             '</div>',
@@ -1110,7 +1130,7 @@ with tab_active:
                 fig.update_layout(
                     plot_bgcolor="#0a0e1a",
                     paper_bgcolor="#0a0e1a",
-                    font_color="#94a3b8",
+                    font_color="#cbd5e1",
                     showlegend=False,
                     height=400,
                     xaxis_tickangle=-45,
@@ -1223,7 +1243,7 @@ with tab_cycles:
                     "Cumulative Cycles": st.column_config.ProgressColumn(
                         "Cumulative Cycles",
                         min_value=0,
-                        max_value=max(summary_sorted["Cumulative Cycles"].max(), 1),
+                        max_value=int(max(summary_sorted["Cumulative Cycles"].max(), 1)),
                         format="%d cycles",
                     ),
                     "Own Cycles": st.column_config.NumberColumn("Own Cycles", width=80),
@@ -1241,14 +1261,14 @@ with tab_cycles:
                     fig_dist = px.histogram(
                         has_cycles,
                         x="Cumulative Cycles",
-                        nbins=max(has_cycles["Cumulative Cycles"].max(), 1),
+                        nbins=int(max(has_cycles["Cumulative Cycles"].max(), 1)),
                         color_discrete_sequence=["#38bdf8"],
                         labels={"Cumulative Cycles": "Total Cumulative Cycles", "count": "Number of Mice"},
                     )
                     fig_dist.update_layout(
                         plot_bgcolor="#0a0e1a",
                         paper_bgcolor="#0a0e1a",
-                        font_color="#94a3b8",
+                        font_color="#cbd5e1",
                         height=300,
                         bargap=0.1,
                     )
@@ -1273,7 +1293,7 @@ with tab_cycles:
                 fig_psg.update_layout(
                     plot_bgcolor="#0a0e1a",
                     paper_bgcolor="#0a0e1a",
-                    font_color="#94a3b8",
+                    font_color="#cbd5e1",
                     height=350,
                     barmode="overlay",
                     xaxis_title="Passage",
@@ -1336,7 +1356,7 @@ with tab_cycles:
                     border_color = "#2563eb"
                     bg = "#1e3a5f"
                     cycle_label = f'<div style="color:#38bdf8;font-weight:700;font-size:14px">+{c["Cycles"]} cycles</div>'
-                    cycle_label += f'<div style="color:#64748b;font-size:10px">Running: {running_total}</div>'
+                    cycle_label += f'<div style="color:#cbd5e1;font-size:10px">Running: {running_total}</div>'
                 elif c["Cycles"] == 1:
                     border_color = "#854d0e"
                     bg = "#451a03"
@@ -1362,7 +1382,7 @@ with tab_cycles:
                 
                 lineage_html_parts.append(
                     f'<span class="lineage-node" style="border-color:{border_color};background:{bg};min-width:100px">'
-                    f'<div style="font-size:10px;color:#64748b">{src or "P" + str(int(c["Psg"])) if pd.notna(c.get("Psg")) else "?"}</div>'
+                    f'<div style="font-size:10px;color:#cbd5e1">{src or "P" + str(int(c["Psg"])) if pd.notna(c.get("Psg")) else "?"}</div>'
                     f'<div style="font-weight:700;color:#f1f5f9;font-size:12px">{short}</div>'
                     f'{drug_badge}'
                     f'{cycle_label}'
@@ -1494,7 +1514,7 @@ with tab_stats:
         fig_models.update_layout(
             plot_bgcolor="#0a0e1a",
             paper_bgcolor="#0a0e1a",
-            font_color="#94a3b8",
+            font_color="#cbd5e1",
             showlegend=False,
             coloraxis_showscale=False,
             height=500,
@@ -1523,7 +1543,7 @@ with tab_stats:
         fig_regs.update_layout(
             plot_bgcolor="#0a0e1a",
             paper_bgcolor="#0a0e1a",
-            font_color="#94a3b8",
+            font_color="#cbd5e1",
             showlegend=False,
             height=500,
             yaxis=dict(autorange="reversed"),
@@ -1544,7 +1564,7 @@ with tab_stats:
     fig_source.update_layout(
         plot_bgcolor="#0a0e1a",
         paper_bgcolor="#0a0e1a",
-        font_color="#94a3b8",
+        font_color="#cbd5e1",
         height=350,
     )
     st.plotly_chart(fig_source, use_container_width=True)
@@ -1568,7 +1588,7 @@ with tab_stats:
         fig_dur.update_layout(
             plot_bgcolor="#0a0e1a",
             paper_bgcolor="#0a0e1a",
-            font_color="#94a3b8",
+            font_color="#cbd5e1",
             showlegend=False,
             height=400,
             xaxis_tickangle=-45,
@@ -1589,7 +1609,7 @@ with tab_stats:
     fig_psg.update_layout(
         plot_bgcolor="#0a0e1a",
         paper_bgcolor="#0a0e1a",
-        font_color="#94a3b8",
+        font_color="#cbd5e1",
         showlegend=False,
         coloraxis_showscale=False,
         height=300,
