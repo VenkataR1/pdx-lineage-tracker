@@ -18,7 +18,7 @@ from datetime import datetime
 # PAGE CONFIG
 # ─────────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="PDX Lineage Tracker v6",
+    page_title="PDX Lineage Tracker v7",
     page_icon="🧬",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -29,15 +29,27 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* ── Light theme (default) ── */
-    .stApp p, .stApp span, .stApp div, .stMarkdown, .stApp li {
-        color: #1e293b !important;
+    /* ── Force dark background everywhere ── */
+    .stApp, [data-testid="stAppViewContainer"],
+    [data-testid="stHeader"], [data-testid="stToolbar"] {
+        background-color: #0a0e1a !important;
+    }
+    [data-testid="stSidebar"], [data-testid="stSidebar"] > div {
+        background-color: #0f1629 !important;
+    }
+
+    /* ── Bright white text everywhere ── */
+    .stApp, .stApp p, .stApp span, .stApp div, .stMarkdown,
+    .stApp li, .stApp label, .stApp td, .stApp th {
+        color: #f0f4f8 !important;
     }
     .stApp h1, .stApp h2, .stApp h3, .stApp h4 {
-        color: #0f172a !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
     }
     .stApp strong, .stApp b {
-        color: #0f172a !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
     }
 
     /* Sidebar text */
@@ -45,57 +57,73 @@ st.markdown("""
     [data-testid="stSidebar"] span,
     [data-testid="stSidebar"] div,
     [data-testid="stSidebar"] label {
-        color: #1e293b !important;
+        color: #f0f4f8 !important;
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        color: #f0f4f8 !important;
     }
 
-    /* Info box text (welcome screen) */
+    /* Info box (welcome screen) — dark styled */
+    [data-testid="stAlert"] {
+        background-color: #111d35 !important;
+        border: 1px solid #1e3a5f !important;
+    }
     [data-testid="stAlert"] p,
     [data-testid="stAlert"] li,
-    [data-testid="stAlert"] strong {
-        color: #1e3a5f !important;
+    [data-testid="stAlert"] span {
+        color: #e0e7ff !important;
     }
     [data-testid="stAlert"] strong {
+        color: #ffffff !important;
         font-weight: 700 !important;
     }
 
-    /* File uploader label */
+    /* File uploader */
     [data-testid="stFileUploader"] label {
-        color: #1e293b !important;
+        color: #f0f4f8 !important;
         font-weight: 600 !important;
     }
-
-    /* ── Dark theme overrides ── */
-    @media (prefers-color-scheme: dark) {
-        .stApp { background-color: #0a0e1a; }
-        .stApp p, .stApp span, .stApp div, .stMarkdown, .stApp li {
-            color: #e2e8f0 !important;
-        }
-        .stApp h1, .stApp h2, .stApp h3, .stApp h4 {
-            color: #f1f5f9 !important;
-        }
-        .stApp strong, .stApp b {
-            color: #ffffff !important;
-        }
-        [data-testid="stSidebar"] p,
-        [data-testid="stSidebar"] span,
-        [data-testid="stSidebar"] div,
-        [data-testid="stSidebar"] label {
-            color: #e2e8f0 !important;
-        }
-        [data-testid="stAlert"] p,
-        [data-testid="stAlert"] li,
-        [data-testid="stAlert"] strong {
-            color: #e2e8f0 !important;
-        }
-        [data-testid="stFileUploader"] label {
-            color: #e2e8f0 !important;
-        }
+    [data-testid="stFileUploader"] section {
+        background-color: #111827 !important;
+        border-color: #334155 !important;
     }
-    
+    [data-testid="stFileUploader"] span {
+        color: #cbd5e1 !important;
+    }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: #0f1629 !important;
+    }
+    .stTabs [data-baseweb="tab"] {
+        color: #94a3b8 !important;
+    }
+    .stTabs [aria-selected="true"] {
+        color: #ffffff !important;
+    }
+
+    /* Selectbox / inputs */
+    [data-baseweb="select"] > div,
+    .stSelectbox > div > div,
+    .stTextInput > div > div > input,
+    .stNumberInput > div > div > input {
+        background-color: #111827 !important;
+        color: #f0f4f8 !important;
+        border-color: #334155 !important;
+    }
+    [data-baseweb="select"] span {
+        color: #f0f4f8 !important;
+    }
+
+    /* Data tables */
+    [data-testid="stDataFrame"], [data-testid="stTable"] {
+        background-color: #0f1629 !important;
+    }
+
     /* Metric cards */
     .metric-card {
-        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-        border: 1px solid #cbd5e1;
+        background: linear-gradient(135deg, #111827, #1e293b);
+        border: 1px solid #1e293b;
         border-radius: 12px;
         padding: 20px;
         text-align: center;
@@ -103,22 +131,14 @@ st.markdown("""
     .metric-value {
         font-size: 32px;
         font-weight: 800;
-        color: #0f172a !important;
+        color: #ffffff !important;
         margin: 4px 0;
     }
     .metric-label {
         font-size: 12px;
-        color: #475569 !important;
+        color: #94a3b8 !important;
         text-transform: uppercase;
         letter-spacing: 1px;
-    }
-    @media (prefers-color-scheme: dark) {
-        .metric-card {
-            background: linear-gradient(135deg, #111827, #1e293b);
-            border: 1px solid #1e293b;
-        }
-        .metric-value { color: #f1f5f9 !important; }
-        .metric-label { color: #cbd5e1 !important; }
     }
     
     /* Drug badges */
@@ -785,18 +805,29 @@ def build_tree_graph(df, mouse_id, active_mice):
             showlegend=False,
         ))
 
-        # Node name label — placed to the right to avoid overlap
+        # Node detail label — placed to the RIGHT of the dot
+        # Build label: full mouse name + source type + days
+        label_parts = [f"<b>{node}</b>"]
+        if source_type:
+            label_parts.append(f"  ({source_type})")
+        if days:
+            label_parts.append(f"  {int(days)}d")
+        if is_active:
+            label_parts.append("  🟢")
+        detail_label = "".join(label_parts)
+
         fig.add_annotation(
-            x=nx_coord,
-            y=ny_coord + ROW_HEIGHT * 0.18,
-            text=f"<b>{short}</b>",
+            x=nx_coord + NODE_SPACING * 0.15,
+            y=ny_coord,
+            text=detail_label,
             showarrow=False,
             font=dict(
                 size=11 if is_selected else 10,
                 color="#ffffff" if is_selected else ("#e2e8f0" if is_on_lineage else "#cbd5e1"),
                 family="monospace",
             ),
-            yanchor="bottom",
+            xanchor="left",
+            yanchor="middle",
         )
 
         # Drug label below node (for drugged nodes)
@@ -846,7 +877,7 @@ def build_tree_graph(df, mouse_id, active_mice):
         margin=dict(l=10, r=10, t=10, b=10),
         xaxis=dict(
             showgrid=False, zeroline=False, showticklabels=False,
-            range=[min(all_x) - x_pad, max(all_x) + x_pad + NODE_SPACING * 4],
+            range=[min(all_x) - x_pad, max(all_x) + x_pad + NODE_SPACING * 8],
         ),
         yaxis=dict(
             showgrid=False, zeroline=False, showticklabels=False,
